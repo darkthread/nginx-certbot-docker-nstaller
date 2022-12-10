@@ -1,0 +1,18 @@
+version: "3"
+services:
+  nginx:
+    image: docker.io/staticfloat/nginx-certbot
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/log/nginx:/var/log/nginx
+      - /var/log/letsencrypt:/var/log/letsencrypt
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /etc/nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: always
+    environment:
+      - CERTBOT_EMAIL=@email
+    network_mode: "host"
