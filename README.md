@@ -11,4 +11,4 @@ chmod +x install.sh
 ```
 [demo video](https://www.youtube.com/watch?v=sisChevVa0Y)
 
-[Blog post (in Chinese)](https://blog.darkthread.net/blog/nginx-certbot-auto-setup/)
+[Blog post (in Chinese) / 部落格文章](https://blog.darkthread.net/blog/nginx-certbot-auto-setup/) 
