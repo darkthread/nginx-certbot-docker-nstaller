@@ -25,41 +25,53 @@ if ! grep -q "Ubuntu" /etc/issue && ! grep -q "Debian" /etc/issue;
     exit 1
 fi
 
+# get administrative privilege
+# invoke `sudo' only when running as an unprivileged user (nonzero "$UID")
+declare -a a_privilege=()
+if (( "$UID" ));
+  then
+    a_privilege+=( "sudo" )
+    echo "This script requires privileges"
+    echo "to install packages and write to top-level files / directories."
+    echo "Invoking \`sudo' to acquire the permission:"
+    "${a_privilege[@]}" :
+fi
+
 # install docker
-sudo apt-get -y install ca-certificates curl wget gnupg lsb-release
-sudo mkdir -p /etc/apt/keyrings
+"${a_privilege[@]}" apt-get -y install ca-certificates curl wget gnupg lsb-release
+"${a_privilege[@]}" mkdir -p /etc/apt/keyrings
 # check if ubuntu or debian
 if grep -q "Ubuntu" /etc/issue;
 then
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | "${a_privilege[@]}" gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    $(lsb_release -cs) stable" | "${a_privilege[@]}" tee /etc/apt/sources.list.d/docker.list > /dev/null
 else
-  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  curl -fsSL https://download.docker.com/linux/debian/gpg | "${a_privilege[@]}" gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    $(lsb_release -cs) stable" | "${a_privilege[@]}" tee /etc/apt/sources.list.d/docker.list > /dev/null
 fi
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-sudo apt-get update
-sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+"${a_privilege[@]}" chmod a+r /etc/apt/keyrings/docker.gpg
+"${a_privilege[@]}" apt-get update
+"${a_privilege[@]}" apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
 chmod +x docker-compose-linux-x86_64
-sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
-sudo usermod -aG docker "$USER"
-sudo systemctl enable docker
+"${a_privilege[@]}" mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+"${a_privilege[@]}" usermod -aG docker "$USER"
+"${a_privilege[@]}" systemctl enable docker
 # download docker images
-sudo docker pull staticfloat/nginx-certbot
-sudo docker pull mcr.microsoft.com/dotnet/samples:aspnetapp
+"${a_privilege[@]}" docker pull staticfloat/nginx-certbot
+"${a_privilege[@]}" docker pull mcr.microsoft.com/dotnet/samples:aspnetapp
 
 # download /etc/nginx conf files
-sudo mkdir /etc/nginx
-sudo mkdir /etc/nginx/conf.d
-sudo curl -o /etc/nginx/nginx.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/nginx.conf
-sudo curl -o /etc/nginx/conf.d/00.default.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/conf.d/00.default.conf
-sudo curl -o /etc/nginx/conf.d/01.aspnetcore.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/conf.d/01.aspnetcore.conf
-sudo sed -i "s/@fqdn/$fqdn/g" /etc/nginx/conf.d/01.aspnetcore.conf
+"${a_privilege[@]}" mkdir /etc/nginx
+"${a_privilege[@]}" mkdir /etc/nginx/conf.d
+"${a_privilege[@]}" curl -o /etc/nginx/nginx.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/nginx.conf
+"${a_privilege[@]}" curl -o /etc/nginx/conf.d/00.default.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/conf.d/00.default.conf
+"${a_privilege[@]}" curl -o /etc/nginx/conf.d/01.aspnetcore.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/conf.d/01.aspnetcore.conf
+"${a_privilege[@]}" sed -i "s/@fqdn/$fqdn/g" /etc/nginx/conf.d/01.aspnetcore.conf
 
 # copy docker-compose.yml to $HOME/dockers/nginx-certbot
 mkdir -p "$HOME/dockers/nginx-certbot"
@@ -74,6 +86,6 @@ curl -O https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstall
 
 # start docker containers
 cd "$HOME/dockers/aspnetcore"
-sudo docker-compose up -d
+"${a_privilege[@]}" docker-compose up -d
 cd "$HOME/dockers/nginx-certbot"
-sudo docker-compose up -d
+"${a_privilege[@]}" docker-compose up -d
