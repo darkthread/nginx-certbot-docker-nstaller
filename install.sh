@@ -1,21 +1,22 @@
-#!/bin/bash
-fqdn=$1
-email=$2
+#!/usr/bin/env bash
 
 # curl -O https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/install.sh
 # chmod +x install.sh
 # ./install.sh www.mydomain.net username@gmail.com
 
-# exit when any command fails
-set -e
+# exit when any command fails or any unbound variable is accessed
+set -eu -o pipefail
 
 # check if parameter is empty
-if [[ -z $fqdn || -z $email ]];
+if (( "$#" < 2 ));
   then
     echo "syntax: install.sh <FQDN> <email-for-certbot>"
     echo "example: install.sh www.mydoamin.net username@gmail.com"
     exit 1
 fi
+
+fqdn="$1"
+email="$2"
 
 # if os is not ubuntu or debian, exit
 if ! grep -q "Ubuntu" /etc/issue && ! grep -q "Debian" /etc/issue;
@@ -46,7 +47,7 @@ sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plu
 curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
 chmod +x docker-compose-linux-x86_64
 sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
-sudo usermod -aG docker $USER
+sudo usermod -aG docker "$USER"
 sudo systemctl enable docker
 # download docker images
 sudo docker pull staticfloat/nginx-certbot
@@ -60,19 +61,19 @@ sudo curl -o /etc/nginx/conf.d/00.default.conf https://raw.githubusercontent.com
 sudo curl -o /etc/nginx/conf.d/01.aspnetcore.conf https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/etc/nginx/conf.d/01.aspnetcore.conf
 sudo sed -i "s/@fqdn/$fqdn/g" /etc/nginx/conf.d/01.aspnetcore.conf
 
-# copy docker-compose.yml to /home/$USER/dockers/nginx-certbot
-mkdir -p /home/$USER/dockers/nginx-certbot
-cd /home/$USER/dockers/nginx-certbot
+# copy docker-compose.yml to $HOME/dockers/nginx-certbot
+mkdir -p "$HOME/dockers/nginx-certbot"
+cd "$HOME/dockers/nginx-certbot"
 curl -O https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/dockers/nginx-certbot/docker-compose.yml
 sed -i "s/@email/$email/g" docker-compose.yml
 
-# copy docker-compose.yml to /home/$USER/dockers/aspnetcore
-mkdir -p /home/$USER/dockers/aspnetcore
-cd /home/$USER/dockers/aspnetcore
+# copy docker-compose.yml to $HOME/dockers/aspnetcore
+mkdir -p "$HOME/dockers/aspnetcore"
+cd "$HOME/dockers/aspnetcore"
 curl -O https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/dockers/aspnetcore/docker-compose.yml
 
 # start docker containers
-cd /home/$USER/dockers/aspnetcore
+cd "$HOME/dockers/aspnetcore"
 sudo docker-compose up -d
-cd /home/$USER/dockers/nginx-certbot
+cd "$HOME/dockers/nginx-certbot"
 sudo docker-compose up -d
