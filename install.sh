@@ -28,21 +28,21 @@ fi
 sudo apt-get -y install ca-certificates curl wget gnupg lsb-release
 sudo mkdir -p /etc/apt/keyrings
 # check if ubuntu or debian
-if grep -q "Ubuntu" /etc/issue; 
+if grep -q "Ubuntu" /etc/issue;
 then
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg  
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
     $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 else
-  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg    
+  curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null  
+    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 fi
-sudo chmod a+r /etc/apt/keyrings/docker.gpg  
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
 sudo apt-get update
-sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin 
+sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
 chmod +x docker-compose-linux-x86_64
 sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
