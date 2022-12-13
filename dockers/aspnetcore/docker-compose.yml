@@ -2,6 +2,6 @@ version: "3"
 services:
   nginx:
     image: mcr.microsoft.com/dotnet/samples:aspnetapp
-    container_name: aspnetcore_sample 
+    container_name: aspnetcore_sample
     ports:
       - 5000:80
