@@ -33,8 +33,8 @@ if (( "$UID" ));
     a_privilege+=( "sudo" )
     echo "This script requires privileges"
     echo "to install packages and write to top-level files / directories."
-    echo "Invoking \`sudo' to acquire the permission:"
-    "${a_privilege[@]}" :
+    echo "Invoking \`${a_privilege[*]}' to acquire the permission:"
+    "${a_privilege[@]}" bash -c ":"
 fi
 
 # install docker
