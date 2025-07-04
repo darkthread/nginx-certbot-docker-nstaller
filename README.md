@@ -5,7 +5,7 @@ This script installs Docer, Docker-Compose and setup nginx-certbot and ASP.NET C
 Run these command in brand-new Debian or Ubuntu, then you can browse the ASP.NET Core sample site with HTTPS latter.
 
 ```shell
-curl -O https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-nstaller/master/install.sh
+curl -O https://raw.githubusercontent.com/darkthread/nginx-certbot-docker-installer/master/install.sh
 chmod +x install.sh
 ./install.sh www.your-domain.net your-email@gmail.com
 ```
